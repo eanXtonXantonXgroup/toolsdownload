@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zalith Tools Store</title>
+  <style>
+    /* Reset & Disable Tap Highlight Color on Mobile */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar Header */
+    header {
+      background-color: #1e293b;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .menu-btn {
+      font-size: 24px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #ffffff;
+      transition: transform 0.2s ease;
+    }
+
+    .menu-btn:active {
+      transform: scale(0.9);
+    }
+
+    .app-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    /* Sidebar Drawer */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100%;
+      background-color: #1e293b;
+      box-shadow: 4px 0 10px rgba(0,0,0,0.5);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 200;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      z-index: 150;
+      backdrop-filter: blur(2px);
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 10px;
+    }
+
+    .dev-info {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .sidebar-menu button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      background-color: #334155;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      text-align: left;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .sidebar-menu button:active {
+      transform: scale(0.98);
+      background-color: #475569;
+    }
+
+    .sidebar-menu button.vip-btn {
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      color: #000;
+    }
+
+    /* Main Container */
+    .container {
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Auth Forms */
+    .auth-box {
+      background-color: #1e293b;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .auth-box h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #38bdf8;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background-color: #0f172a;
+      color: white;
+      font-size: 14px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: #0284c7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+      background-color: #0369a1;
+    }
+
+    .toggle-auth {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 13px;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .toggle-auth span {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+
+    /* File List Items */
+    .file-card {
+      background-color: #1e293b;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .file-card:active {
+      transform: scale(0.98);
+      background-color: #334155;
+    }
+
+    .file-icon {
+      width: 45px;
+      height: 45px;
+      object-fit: cover;
+      margin-right: 15px;
+      border-radius: 8px;
+    }
+
+    .file-details {
+      flex: 1;
+    }
+
+    .file-name {
+      font-weight: bold;
+      font-size: 16px;
+      color: #f1f5f9;
+    }
+
+    .file-downloads {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Modal Pop-up */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 300;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background-color: #1e293b;
+      padding: 25px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      animation: zoomIn 0.2s ease;
+    }
+
+    .modal-content h3 {
+      color: #38bdf8;
+      margin-bottom: 10px;
+    }
+
+    .modal-content p {
+      font-size: 14px;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 10px;
+      background-color: #475569;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
+    <div class="app-title">Zalith Tools</div>
+    <div style="width: 24px;"></div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar Menu -->
+  <div class="sidebar" id="sidebar">
+    <h2>Developer Info</h2>
+    <div class="dev-info">
+      <strong>Creator:</strong> Andrean Antono<br>
+      <strong>Email:</strong> anton.id.dunia@gmail.com<br>
+      <strong>Alt Email:</strong> ean.ambivial@gmail.com<br>
+      <strong>Instagram:</strong> @ean_ambivial
+    </div>
+
+    <div class="sidebar-menu">
+      <button class="vip-btn" onclick="openVipModal()">VIP Unlock</button>
+      <button onclick="openChangeInfoModal()">Account Settings</button>
+      <button onclick="logout()" style="background-color: #ef4444;">Logout</button>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    
+    <!-- Register Form -->
+    <div id="registerSection" class="auth-box hidden">
+      <h2>Register Account</h2>
+      <form onsubmit="handleRegister(event)">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" required placeholder="example@mail.com">
+        </div>
+        <div class="input-group">
+          <label>Phone Number</label>
+          <input type="tel" id="regPhone" required placeholder="08xxxxxxxxxx">
+        </div>
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" id="regUsername" required placeholder="Choose a username">
+        </div>
+        <button type="submit" class="btn-submit">Register</button>
+      </form>
+      <div class="toggle-auth" onclick="showLogin()">
+        Already have an account? <span>Login</span>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginSection" class="auth-box">
+      <h2>Login</h2>
+      <form onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" required placeholder="Enter username">
+        </div>
+        <div class="input-group">
+          <label>Password (Phone Number)</label>
+          <input type="password" id="loginPhone" required placeholder="Enter phone number">
+        </div>
+        <button type="submit" class="btn-submit">Login</button>
+      </form>
+      <div class="toggle-auth" onclick="showRegister()">
+        Don't have an account? <span>Register</span>
+      </div>
+    </div>
+
+    <!-- Main Content (Tools Menu) -->
+    <div id="mainContent" class="hidden">
+      <div style="margin-bottom: 15px; font-size: 14px; color: #94a3b8; display: flex; justify-content: space-between;">
+        <span>Welcome, <b id="displayUser" style="color: #38bdf8;">User</b></span>
+        <span id="statusBadge" style="background: #334155; padding: 2px 8px; border-radius: 4px; font-size: 12px;">FREE</span>
+      </div>
+
+      <div id="fileList">
+        <!-- Files will be injected dynamically here -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- File Detail Modal -->
+  <div class="modal" id="fileModal">
+    <div class="modal-content">
+      <h3 id="modalFileName">File Name</h3>
+      <p id="modalFileDesc">File Description goes here...</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('fileModal')">Close</button>
+        <button class="btn-submit" onclick="confirmDownload()">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIP Unlock Modal -->
+  <div class="modal" id="vipModal">
+    <div class="modal-content">
+      <h3>Unlock Premium</h3>
+      <p>Enter your VIP activation code below:</p>
+      <div class="input-group">
+        <input type="text" id="vipCodeInput" placeholder="CODE YOUR PREMIUM TOOLS">
+      </div>
+      <button class="btn-submit" onclick="activateVip()" style="margin-bottom: 15px;">Unlock VIP</button>
+      
+      <div style="text-align: center; font-size: 13px;">
+        <a href="https://wa.me/6287785996770?text=Hi,Developer%20I%20want%20to%20get%20premium%20code%20give%20me%20list%20of%20codes%20and%20prices" 
+           target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: bold;">
+          Get Premium Code (WhatsApp)
+        </a>
+      </div>
+      <br>
+      <button class="btn-secondary" onclick="closeModal('vipModal')" style="width: 100%;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Change Account Info Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <h3>Account Settings</h3>
+      <div class="input-group">
+        <label>New Phone Number</label>
+        <input type="tel" id="newPhoneInput" placeholder="Enter new phone">
+      </div>
+      <div class="input-group">
+        <label>New Email</label>
+        <input type="email" id="newEmailInput" placeholder="Enter new email">
+      </div>
+      <button class="btn-submit" onclick="updateAccountInfo()" style="margin-bottom: 10px;">Save Changes</button>
+      <button class="btn-secondary" onclick="closeModal('settingsModal')" style="width: 100%;">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // Global State
+    let currentUser = null;
+    let selectedFile = null;
+    let downloadsCount = 0;
+
+    // Local Storage Helper
+    function getStoredAccount() {
+      return JSON.parse(localStorage.getItem('zalith_user'));
+    }
+
+    function saveAccount(data) {
+      localStorage.setItem('zalith_user', JSON.stringify(data));
+    }
+
+    // Initialize Application
+    window.onload = function() {
+      currentUser = getStoredAccount();
+      if (currentUser && currentUser.isLoggedIn) {
+        showMainContent();
+      } else {
+        showLogin();
+      }
+    };
+
+    // Sidebar Toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+
+    // UI Auth Toggles
+    function showLogin() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('registerSection').classList.add('hidden');
+      document.getElementById('mainContent').classList.add('hidden');
+    }
+
+    function showRegister() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('registerSection').classList.remove('hidden');
+      document.getElementById('mainContent').classList.add('hidden');
+    }
+
+    // Authentication Handlers
+    function handleRegister(e) {
+      e.preventDefault();
+      const email = document.getElementById('regEmail').value;
+      const phone = document.getElementById('regPhone').value;
+      const username = document.getElementById('regUsername').value;
+
+      const userData = {
+        username: username,
+        phone: phone,
+        email: email,
+        isLoggedIn: true,
+        isVip: false,
+        downloads: 0
+      };
+
+      saveAccount(userData);
+      currentUser = userData;
+      alert('Registration successful!');
+      showMainContent();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value;
+      const phone = document.getElementById('loginPhone').value;
+
+      const account = getStoredAccount();
+      if (account && account.username === username && account.phone === phone) {
+        account.isLoggedIn = true;
+        saveAccount(account);
+        currentUser = account;
+        showMainContent();
+      } else {
+        alert('Invalid Username or Password (Phone Number)!');
+      }
+    }
+
+    function logout() {
+      if (currentUser) {
+        currentUser.isLoggedIn = false;
+        saveAccount(currentUser);
+      }
+      toggleSidebar();
+      showLogin();
+    }
+
+    // Main App Display & GitHub File Fetching
+    function showMainContent() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('registerSection').classList.add('hidden');
+      document.getElementById('mainContent').classList.remove('hidden');
+
+      document.getElementById('displayUser').innerText = currentUser.username;
+      
+      const badge = document.getElementById('statusBadge');
+      if (currentUser.isVip) {
+        badge.innerText = 'VIP';
+        badge.style.background = '#eab308';
+        badge.style.color = '#000';
+      } else {
+        badge.innerText = 'FREE';
+        badge.style.background = '#334155';
+        badge.style.color = '#fff';
+      }
+
+      loadFilesFromRepo();
+    }
+
+    // Parse Filename: nama=zalith-deskripsi=none-icon=icon1.zip
+    function parseFileName(fullString) {
+      try {
+        const nameMatch = fullString.match(/nama=([^-]+)/);
+        const descMatch = fullString.match(/deskripsi=([^-]+)/);
+        const iconMatch = fullString.match(/icon=([^.]+)/);
+
+        const name = nameMatch ? nameMatch[1] : 'Unknown File';
+        const desc = descMatch ? descMatch[1] : 'No description provided.';
+        const iconName = iconMatch ? iconMatch[1] + '.png' : 'default.png';
+
+        return { name, desc, iconName, originalName: fullString };
+      } catch (e) {
+        return { name: fullString, desc: 'No details', iconName: 'default.png', originalName: fullString };
+      }
+    }
+
+    // Fetch Files from GitHub (or Mock Data for Local Test)
+    function loadFilesFromRepo() {
+      const fileListContainer = document.getElementById('fileList');
+      fileListContainer.innerHTML = '';
+
+      // Mock data matching your requested format
+      const files = [
+        "nama=Zalith-deskripsi=This is official zalith tool-icon=icon1.zip",
+        "nama=Zalith-deskripsi=Pro version ofzalith tool-icon=icon1.apk"
+      ];
+
+      files.forEach(fileName => {
+        const parsed = parseFileName(fileName);
+        const downloadCount = localStorage.getItem('dl_' + parsed.name) || 0;
+
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        card.onclick = () => openFileModal(parsed, fileName);
+
+        card.innerHTML = `
+          <img class="file-icon" src="${parsed.iconName}" onerror="this.src='https://via.placeholder.com/45/334155/38bdf8?text=File'" alt="icon">
+          <div class="file-details">
+            <div class="file-name">${parsed.name}</div>
+            <div class="file-downloads">Downloaded ${downloadCount} times</div>
+          </div>
+        `;
+
+        fileListContainer.appendChild(card);
+      });
+    }
+
+    // Modal Control & Downloads
+    function openFileModal(parsedFile, rawFileName) {
+      selectedFile = { ...parsedFile, rawFileName };
+      document.getElementById('modalFileName').innerText = parsedFile.name;
+      document.getElementById('modalFileDesc').innerText = parsedFile.desc === 'none' ? 'No description available.' : parsedFile.desc;
+      document.getElementById('fileModal').style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function confirmDownload() {
+      if (!currentUser.isVip && currentUser.downloads >= 2) {
+        alert('Free limit reached (Max 2 downloads)! Please unlock VIP to download more files.');
+        closeModal('fileModal');
+        openVipModal();
+        return;
+      }
+
+      // Track download stats
+      currentUser.downloads = (currentUser.downloads || 0) + 1;
+      saveAccount(currentUser);
+
+      let currentDlCount = parseInt(localStorage.getItem('dl_' + selectedFile.name) || '0');
+      localStorage.setItem('dl_' + selectedFile.name, currentDlCount + 1);
+
+      // Trigger Download with Clean Name (e.g., "Zalith.zip")
+      const ext = selectedFile.rawFileName.split('.').pop();
+      const cleanDownloadName = selectedFile.name + '.' + ext;
+
+      const link = document.createElement('a');
+      link.href = selectedFile.rawFileName;
+      link.download = cleanDownloadName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      closeModal('fileModal');
+      showMainContent(); // Refresh UI stats
+    }
+
+    // VIP Activation Logic
+    function openVipModal() {
+      toggleSidebar();
+      document.getElementById('vipModal').style.display = 'flex';
+    }
+
+    function activateVip() {
+      const code = document.getElementById('vipCodeInput').value.trim();
+      
+      // Sample validation against rules
+      if (code === "KFGT6-V1YPI" || code === "O8LOW-92A04") {
+        currentUser.isVip = true;
+        saveAccount(currentUser);
+        alert('VIP Unlocked Successfully!');
+        closeModal('vipModal');
+        showMainContent();
+      } else {
+        alert('Invalid Premium Code! Please check your code or contact the developer.');
+      }
+    }
+
+    // Account Settings
+    function openChangeInfoModal() {
+      toggleSidebar();
+      document.getElementById('newPhoneInput').value = currentUser.phone || '';
+      document.getElementById('newEmailInput').value = currentUser.email || '';
+      document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function updateAccountInfo() {
+      const newPhone = document.getElementById('newPhoneInput').value;
+      const newEmail = document.getElementById('newEmailInput').value;
+
+      if (newPhone) currentUser.phone = newPhone;
+      if (newEmail) currentUser.email = newEmail;
+
+      saveAccount(currentUser);
+      alert('Account info updated successfully!');
+      closeModal('settingsModal');
+    }
+  </script>
+</body>
+</html>
